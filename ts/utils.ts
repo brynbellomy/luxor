@@ -1,13 +1,3 @@
-
-///<reference path='../typings/tsd.d.ts' />
-
-/** Returns `true` if `val` is `null` or `undefined`. */
-export function nullish (val:any): boolean {
-    return val === null || val === undefined
-}
-
-/// <reference path='../all-typings.d.ts' />
-
 import * as Rx from 'rx'
 import * as assert from 'assert'
 

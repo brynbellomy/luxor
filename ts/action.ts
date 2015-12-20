@@ -1,8 +1,6 @@
-/// <reference path='../typings/tsd.d.ts' />
 
 import * as Rx from 'rx'
-import { Promise } from 'es6-promise'
-
+import * as p from 'es6-promise'
 
 export interface IAction<Return> extends Function {
     rx_action: Rx.Observable<Return>
@@ -30,16 +28,12 @@ export function action < T extends Function, Return > (target: T & ICallable<Ret
     var rx_action = new Rx.Subject<Return>()
 
     var newFn = (function (...args) {
-        log(`(action) ${ newFn.debugName } called with args:`, args)
         var retval = oldFn(...args)
         rx_action.onNext(retval)
-        log(`(action) ${ newFn.debugName } returned:`, retval)
         return retval
     } as any) as T & ICallable<Return> & IAction<Return>
 
-    newFn.rx_action = rx_action.doOnNext(next => log(`rx_action(${ newFn.debugName }) next ~>`, next))
-                               .doOnError(error => log(`rx_action(${ newFn.debugName }) error ~>`, error))
-                               .asObservable()
+    newFn.rx_action = rx_action.asObservable()
     return newFn
 }
 
@@ -59,24 +53,15 @@ export function asyncAction < T extends Function, Return > (target: T & ICallabl
     var rx_action = new Rx.Subject<Return>()
 
     var newFn = (function (...args) {
-        log(`(asyncAction) ${ newFn.debugName } called with args:`, args)
-
         return (oldFn(...args) as any).then(val => {
             rx_action.onNext(val as any)
-            log(`(asyncAction) ${ newFn.debugName } returned:`, val)
             return val
         })
     } as any) as T & ICallable<Promise<Return>> & IAction<Return>
 
-    newFn.rx_action = rx_action.doOnNext(next => log(`rx_action[ ${ newFn.debugName } ] ~>`, next))
-                               .asObservable()
+    newFn.rx_action = rx_action.asObservable()
 
     return newFn
-}
-
-function log (msg:string, ...args: any[]) {
-    // if (ENABLE_ACTION_DEBUG_LOGGING) { console.log(msg, ...args) }
-    console.log(msg, ...args)
 }
 
 

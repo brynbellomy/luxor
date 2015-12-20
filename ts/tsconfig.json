@@ -4,15 +4,26 @@
         "target": "es5",
         "declaration": true,
         "sourceMap": true,
-        "outDir": "../js"
+        "inlineSourceMap": false,
+        "preserveConstEnums": true,
+        "removeComments": true,
+
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+
+        "moduleResolution": "node",
+        "outDir": "../js",
+
+        "forceConsistentCasingInFileNames": true,
+
+        "jsx": "react"
     },
     "files": [
         "typings/tsd.d.ts"
-      , "typings/node/node.d.ts"
-
       , "index.ts"
-      , "inner-module/index.ts"
       , "utils.ts"
+      , "action.ts"
+      , "store.tsx"
     ]
 }
 

@@ -12,11 +12,20 @@
     "url": "https://github.com/brynbellomy/luxor"
   },
   "license": "ISC",
-  "engines" : { "node" : ">=5.0.0 <6.0.0" },
+  "engines": {
+    "node": ">=5.0.0 <6.0.0"
+  },
   "devDependencies": {
     "tsd": "^0.6.1",
     "typescript": "^1.8.0-dev.20151125"
   },
   "dependencies": {
+    "cdp-diff": "0.0.13",
+    "es6-promise": "^3.0.2",
+    "lodash": "^3.10.1",
+    "pants": "^2.5.0",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
+    "rx": "^4.0.7"
   }
 }
