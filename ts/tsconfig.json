@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "declaration": true,
+        "sourceMap": true,
+        "outDir": "../js"
+    },
+    "files": [
+        "typings/tsd.d.ts"
+      , "typings/node/node.d.ts"
+
+      , "index.ts"
+      , "inner-module/index.ts"
+      , "utils.ts"
+    ]
+}
+
