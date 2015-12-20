@@ -1,6 +1,6 @@
 {
   "name": "luxor",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Flux-ish action/store framework using Typescript, Rx.js, and React",
   "main": "js/index.js",
   "typings": "js/index",
