@@ -1,7 +1,7 @@
 
 # luxor
 
-Flux-ish action/store framework.  Uses Typescript, Rx.js, and React.
+Flux-ish action/store framework.  Built with Typescript and Rx.js.
 
 ```typescript
 import * as luxor from 'luxor'
