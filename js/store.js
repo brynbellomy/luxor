@@ -6,7 +6,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 var Rx = require('rx');
 var π = require('pants');
 var component_1 = require('./component');
-var utils_1 = require('./utils');
 var Store = (function (_super) {
     __extends(Store, _super);
     function Store(props, shouldDiffState) {
@@ -18,29 +17,25 @@ var Store = (function (_super) {
     }
     Store.prototype.listenToStore = function (store, callback) {
         var disposable = store.rx_observableState.startWith(store.state)
-            .doOnNext(function (newState) { return callback(newState); })
-            .subscribe(utils_1.debugObserver(this.debugName + " -(observing)-> " + store.debugName));
+            .subscribeOnNext(function (newState) { return callback(newState); });
         this.rx_destructorDisposable.add(disposable);
     };
     Store.prototype.listenToStores = function (store1, store2, callback) {
         var s1 = store1.rx_observableState.startWith(store1.state);
         var s2 = store2.rx_observableState.startWith(store2.state);
         var disposable = Rx.Observable.combineLatest(s1, s2, function (state1, state2) { return { state1: state1, state2: state2 }; })
-            .doOnNext(function (t) { return callback(t.state1, t.state2); })
-            .subscribe(utils_1.debugObserver(this.debugName + " -(observing)-> [" + store1.debugName + " + " + store2.debugName + "]"));
+            .subscribeOnNext(function (t) { return callback(t.state1, t.state2); });
         this.rx_destructorDisposable.add(disposable);
     };
     Store.prototype.listenToAction = function (action, callback) {
-        var disposable = action.rx_action.doOnNext(function (newState) { return callback(newState); })
-            .subscribe(utils_1.debugObserver(this.debugName + " -(observing)-> " + action.debugName));
+        var disposable = action.rx_action.subscribeOnNext(function (newState) { return callback(newState); });
         this.rx_destructorDisposable.add(disposable);
     };
     Store.prototype.listenToActions = function (actions, callback) {
         var rx_actions = actions.map(function (action) { return action.rx_action; });
         var allNames = actions.map(function (action) { return action.debugName; }).join(', ');
         var disposable = (_a = Rx.Observable).merge.apply(_a, rx_actions)
-            .doOnNext(function (val) { return callback(val); })
-            .subscribe(utils_1.debugObserver(this.debugName + " -(observing)-> [" + allNames + "]"));
+            .subscribeOnNext(function (val) { return callback(val); });
         this.rx_destructorDisposable.add(disposable);
         var _a;
     };

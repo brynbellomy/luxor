@@ -23,7 +23,7 @@
       , "index.ts"
       , "utils.ts"
       , "action.ts"
-      , "store.tsx"
+      , "store.ts"
     ]
 }
 

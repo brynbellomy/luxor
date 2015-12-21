@@ -22,8 +22,7 @@ abstract class Store < Props, State >
 
     listenToStore < S1 > (store: Store<any, S1>, callback: (newState: S1) => void) {
         const disposable = store.rx_observableState.startWith(store.state)
-                                                   .doOnNext(newState => callback(newState))
-                                                   .subscribe(debugObserver(`${this.debugName} -(observing)-> ${store.debugName}`))
+                                                   .subscribeOnNext(newState => callback(newState))
 
         this.rx_destructorDisposable.add(disposable)
     }
@@ -33,15 +32,13 @@ abstract class Store < Props, State >
         const s2 = store2.rx_observableState.startWith(store2.state)
 
         const disposable = Rx.Observable.combineLatest(s1, s2, (state1, state2) => { return {state1, state2} })
-                                        .doOnNext(t => callback(t.state1, t.state2))
-                                        .subscribe(debugObserver(`${this.debugName} -(observing)-> [${store1.debugName} + ${store2.debugName}]`))
+                                        .subscribeOnNext(t => callback(t.state1, t.state2))
 
         this.rx_destructorDisposable.add(disposable)
     }
 
     listenToAction < Return > (action: IAction<Return>, callback: (val: Return) => void) {
-        const disposable = action.rx_action.doOnNext(newState => callback(newState))
-                                           .subscribe(debugObserver(`${this.debugName} -(observing)-> ${action.debugName}`))
+        const disposable = action.rx_action.subscribeOnNext(newState => callback(newState))
 
         this.rx_destructorDisposable.add(disposable)
     }
@@ -51,8 +48,7 @@ abstract class Store < Props, State >
         const allNames = actions.map(action => action.debugName).join(', ')
 
         const disposable = Rx.Observable.merge(...rx_actions)
-                                        .doOnNext(val => callback(val))
-                                        .subscribe(debugObserver(`${this.debugName} -(observing)-> [${allNames}]`))
+                                        .subscribeOnNext(val => callback(val))
 
         this.rx_destructorDisposable.add(disposable)
     }
