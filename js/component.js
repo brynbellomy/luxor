@@ -26,14 +26,21 @@ var Component = (function () {
     Component.prototype.validateProps = function (newProps) {
         assert(!pants_1.nullish(newProps), 'newProps cannot be null.');
     };
-    Component.prototype.setState = function (partialState) {
+    Component.prototype.setState = function (partialState, merge) {
+        if (merge === void 0) { merge = true; }
         var oldState = _.clone(this._state);
         var newState = _.assign({}, oldState, partialState);
         var _a = this.checkIfStateModified(oldState, newState), didModify = _a[0], theDiff = _a[1];
-        this._state = _.assign({}, this._state, partialState, pants_1.assignAvailableProperties);
+        var assignFn = merge ? pants_1.assignAvailableProperties : undefined;
+        this._state = _.assign({}, this._state, partialState, assignFn);
         if (didModify) {
             this.didUpdateState(oldState, theDiff);
         }
+    };
+    Component.prototype.updateState = function (closure) {
+        var newState = _.cloneDeep(this.state);
+        newState = closure(newState);
+        this.setState(newState, false);
     };
     Component.prototype.checkIfStateModified = function (oldState, newState) {
         if (this.shouldDiffState) {

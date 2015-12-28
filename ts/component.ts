@@ -64,16 +64,23 @@ abstract class Component < Props, State > {
         assert(!nullish(newProps), 'newProps cannot be null.')
     }
 
-    setState (partialState: any) {
+    setState (partialState: any, merge: boolean = true) {
         const oldState = _.clone(this._state)
         const newState = _.assign({}, oldState, partialState) as State
         const [didModify, theDiff] = this.checkIfStateModified(oldState, newState)
 
-        this._state = _.assign({}, this._state, partialState, assignAvailableProperties) as State
+        let assignFn = merge ? assignAvailableProperties : undefined
+        this._state = _.assign({}, this._state, partialState, assignFn) as State
 
         if (didModify) {
             this.didUpdateState(oldState, theDiff)
         }
+    }
+
+    updateState(closure: (state: State) => State) {
+        let newState = _.cloneDeep(this.state)
+        newState = closure(newState)
+        this.setState(newState, false)
     }
 
     /**

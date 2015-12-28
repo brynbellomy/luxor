@@ -9,7 +9,8 @@ declare abstract class Component<Props, State> {
     constructor(props: Props, shouldDiffState?: boolean);
     protected abstract initialState(): State;
     protected validateProps(newProps: Props): void;
-    setState(partialState: any): void;
+    setState(partialState: any, merge?: boolean): void;
+    updateState(closure: (state: State) => State): void;
     private checkIfStateModified(oldState, newState);
     protected didUpdateState(oldState: State, diff?: Object): void;
     destroy(): void;
