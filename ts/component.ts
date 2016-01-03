@@ -69,7 +69,7 @@ abstract class Component < Props, State > {
         const newState = _.assign({}, oldState, partialState) as State
         const [didModify, theDiff] = this.checkIfStateModified(oldState, newState)
 
-        let assignFn = merge ? assignAvailableProperties : undefined
+        const assignFn = merge ? assignAvailableProperties : undefined
         this._state = _.assign({}, this._state, partialState, assignFn) as State
 
         if (didModify) {
