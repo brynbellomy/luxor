@@ -27,12 +27,22 @@ abstract class Store < Props, State >
         this.rx_destructorDisposable.add(disposable)
     }
 
-    listenToStores < S1, S2 > (store1: Store<any, S1>, store2: Store<any, S2>, callback: (state1: S1, state2: S2) => void) {
-        const s1 = store1.rx_observableState.startWith(store1.state)
-        const s2 = store2.rx_observableState.startWith(store2.state)
+    listenToStores<S1>(stores: [Store<any, S1>], callback: (state1: S1) => void);
+    listenToStores<S1, S2>(stores: [Store<any, S1>, Store<any, S2>], callback: (state1: S1, state2: S2) => void);
+    listenToStores<S1, S2, S3>(stores: [Store<any, S1>, Store<any, S2>, Store<any, S3>], callback: (state1: S1, state2: S2, state: S3) => void);
+    listenToStores<S1, S2, S3, S4>(stores: [Store<any, S1>, Store<any, S2>, Store<any, S3>, Store<any, S4>], callback: (state1: S1, state2: S2, state3: S3, state4: S4) => void);
+    listenToStores<S1, S2, S3, S4, S5>(stores: [Store<any, S1>, Store<any, S2>, Store<any, S3>, Store<any, S4>, Store<any, S5>], callback: (state1: S1, state2: S2, state3: S3, state4: S4, state5: S5) => void);
+    listenToStores(stores: Store<any, any>[], callback: (...args: any[]) => void) {
+        const stateSignals: Rx.Observable<any>[] = stores.map(store => {
+            return store.rx_observableState.startWith(store.state)
+        })
 
-        const disposable = Rx.Observable.combineLatest(s1, s2, (state1, state2) => { return {state1, state2} })
-                                        .subscribeOnNext(t => callback(t.state1, t.state2))
+        let args = stateSignals as any[]
+        function handlerFn(...args: any[]) { return args }
+        args.push(handlerFn)
+
+        const disposable = (Rx.Observable.combineLatest as any)(...args)
+                                        .subscribeOnNext(tpl => callback(...tpl))
 
         this.rx_destructorDisposable.add(disposable)
     }

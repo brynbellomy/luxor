@@ -20,12 +20,23 @@ var Store = (function (_super) {
             .subscribeOnNext(function (newState) { return callback(newState); });
         this.rx_destructorDisposable.add(disposable);
     };
-    Store.prototype.listenToStores = function (store1, store2, callback) {
-        var s1 = store1.rx_observableState.startWith(store1.state);
-        var s2 = store2.rx_observableState.startWith(store2.state);
-        var disposable = Rx.Observable.combineLatest(s1, s2, function (state1, state2) { return { state1: state1, state2: state2 }; })
-            .subscribeOnNext(function (t) { return callback(t.state1, t.state2); });
+    Store.prototype.listenToStores = function (stores, callback) {
+        var stateSignals = stores.map(function (store) {
+            return store.rx_observableState.startWith(store.state);
+        });
+        var args = stateSignals;
+        function handlerFn() {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            return args;
+        }
+        args.push(handlerFn);
+        var disposable = (_a = Rx.Observable).combineLatest.apply(_a, args)
+            .subscribeOnNext(function (tpl) { return callback.apply(void 0, tpl); });
         this.rx_destructorDisposable.add(disposable);
+        var _a;
     };
     Store.prototype.listenToAction = function (action, callback) {
         var disposable = action.rx_action.subscribeOnNext(function (newState) { return callback(newState); });
