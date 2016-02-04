@@ -1,7 +1,6 @@
 
 import * as _ from 'lodash'
 import * as Rx from 'rx'
-import { nullish, assignAvailableProperties } from 'pants'
 import * as assert from 'assert'
 import diff = require('cdp-diff')
 import { EventEmitter } from 'events'
@@ -44,7 +43,6 @@ abstract class Component < Props, State > {
     constructor (props: Props, shouldDiffState: boolean = false) {
         this.shouldDiffState = shouldDiffState
 
-        this.validateProps(props)
         this._props = props
         this._state = this.initialState()
     }
@@ -56,21 +54,15 @@ abstract class Component < Props, State > {
      */
     protected abstract initialState(): State;
 
-    /**
-        This method should be implemented by subclasses using the `@propValidating()` decorator.  It should throw an
-        Error if `newProps` contains invalid values.  It is called when the component receives new [[Props]].
-     */
-    protected validateProps (newProps: Props) {
-        assert(!nullish(newProps), 'newProps cannot be null.')
-    }
-
     setState (partialState: any, merge: boolean = true) {
-        const oldState = _.clone(this._state)
-        const newState = _.assign({}, oldState, partialState) as State
-        const [didModify, theDiff] = this.checkIfStateModified(oldState, newState)
+        // const newState = _.assignIn({}, oldState, partialState) as State
+        // const [didModify, theDiff] = this.checkIfStateModified(oldState, newState)
 
         const assignFn = merge ? assignAvailableProperties : undefined
-        this._state = _.assign({}, this._state, partialState, assignFn) as State
+        const newState = _.assignWith({}, this._state, partialState, assignFn) as State
+        const oldState = _.clone(this._state)
+        const [didModify, theDiff] = this.checkIfStateModified(oldState, newState)
+        this._state = newState
 
         if (didModify) {
             this.didUpdateState(oldState, theDiff)
@@ -89,7 +81,7 @@ abstract class Component < Props, State > {
     private checkIfStateModified (oldState: State, newState: State): [boolean, Object] {
         if (this.shouldDiffState) {
             const theDiff = diff.createDiff(oldState, newState)
-            const didModify = _.keys(theDiff).length > 0
+            const didModify = _.keysIn(theDiff).length > 0
             return [didModify, theDiff]
         }
         return [true, null]
@@ -118,4 +110,17 @@ abstract class Component < Props, State > {
 export default Component
 
 
+/**
+    Intended to be passed as the fourth argument of `_.assign(...)`.  Causes any object properties
+    to be recursively merged rather than overwriting one another.
+ */
+function assignAvailableProperties(value, other) {
+    if (_.isArray(value)) {
+        return _.isUndefined(other) ? value : other
+    } else if (_.isObject(value) && _.isObject(other)) {
+        return _.assignInWith({}, value, other, assignAvailableProperties)
+    } else {
+        return _.isUndefined(other) ? value : other
+    }
+}
 

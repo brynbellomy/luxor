@@ -1,6 +1,5 @@
 
 import * as Rx from 'rx'
-import * as π from 'pants'
 import Component from './component'
 import { debugObserver } from './utils'
 import { IAction, } from './action'
@@ -17,7 +16,7 @@ abstract class Store < Props, State >
 
     constructor (props: Props, shouldDiffState: boolean = true) {
         super(props, shouldDiffState)
-        π.async(() => this.emitNewState())
+        setTimeout(() => this.emitNewState(), 0)
     }
 
     listenToStore < S1 > (store: Store<any, S1>, callback: (newState: S1) => void) {

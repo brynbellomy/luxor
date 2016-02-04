@@ -1,7 +1,5 @@
 var _ = require('lodash');
 var Rx = require('rx');
-var pants_1 = require('pants');
-var assert = require('assert');
 var diff = require('cdp-diff');
 var Component = (function () {
     function Component(props, shouldDiffState) {
@@ -9,7 +7,6 @@ var Component = (function () {
         this.shouldDiffState = true;
         this.rx_destructorDisposable = new Rx.CompositeDisposable();
         this.shouldDiffState = shouldDiffState;
-        this.validateProps(props);
         this._props = props;
         this._state = this.initialState();
     }
@@ -23,16 +20,13 @@ var Component = (function () {
         enumerable: true,
         configurable: true
     });
-    Component.prototype.validateProps = function (newProps) {
-        assert(!pants_1.nullish(newProps), 'newProps cannot be null.');
-    };
     Component.prototype.setState = function (partialState, merge) {
         if (merge === void 0) { merge = true; }
+        var assignFn = merge ? assignAvailableProperties : undefined;
+        var newState = _.assignWith({}, this._state, partialState, assignFn);
         var oldState = _.clone(this._state);
-        var newState = _.assign({}, oldState, partialState);
         var _a = this.checkIfStateModified(oldState, newState), didModify = _a[0], theDiff = _a[1];
-        var assignFn = merge ? pants_1.assignAvailableProperties : undefined;
-        this._state = _.assign({}, this._state, partialState, assignFn);
+        this._state = newState;
         if (didModify) {
             this.didUpdateState(oldState, theDiff);
         }
@@ -45,7 +39,7 @@ var Component = (function () {
     Component.prototype.checkIfStateModified = function (oldState, newState) {
         if (this.shouldDiffState) {
             var theDiff = diff.createDiff(oldState, newState);
-            var didModify = _.keys(theDiff).length > 0;
+            var didModify = _.keysIn(theDiff).length > 0;
             return [didModify, theDiff];
         }
         return [true, null];
@@ -59,4 +53,15 @@ var Component = (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Component;
+function assignAvailableProperties(value, other) {
+    if (_.isArray(value)) {
+        return _.isUndefined(other) ? value : other;
+    }
+    else if (_.isObject(value) && _.isObject(other)) {
+        return _.assignInWith({}, value, other, assignAvailableProperties);
+    }
+    else {
+        return _.isUndefined(other) ? value : other;
+    }
+}
 //# sourceMappingURL=component.js.map

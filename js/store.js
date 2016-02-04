@@ -4,7 +4,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Rx = require('rx');
-var π = require('pants');
 var component_1 = require('./component');
 var Store = (function (_super) {
     __extends(Store, _super);
@@ -13,7 +12,7 @@ var Store = (function (_super) {
         if (shouldDiffState === void 0) { shouldDiffState = true; }
         _super.call(this, props, shouldDiffState);
         this.rx_observableState = new Rx.ReplaySubject(1);
-        π.async(function () { return _this.emitNewState(); });
+        setTimeout(function () { return _this.emitNewState(); }, 0);
     }
     Store.prototype.listenToStore = function (store, callback) {
         var disposable = store.rx_observableState.startWith(store.state)

@@ -8,7 +8,6 @@ declare abstract class Component<Props, State> {
     protected rx_destructorDisposable: Rx.CompositeDisposable;
     constructor(props: Props, shouldDiffState?: boolean);
     protected abstract initialState(): State;
-    protected validateProps(newProps: Props): void;
     setState(partialState: any, merge?: boolean): void;
     updateState(closure: (state: State) => State): void;
     private checkIfStateModified(oldState, newState);
