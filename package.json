@@ -1,7 +1,7 @@
 {
   "name": "luxor",
-  "version": "1.7.0",
-  "description": "Flux-ish action/store framework using Typescript, Rx.js, and React",
+  "version": "2.1.0",
+  "description": "Flux-ish action/store framework using Typescript and Rx.js",
   "main": "js/index.js",
   "typings": "js/index",
   "authors": [
@@ -17,12 +17,11 @@
   },
   "devDependencies": {
     "tsd": "^0.6.1",
-    "typescript": "^1.8.0-dev.20151125"
+    "typescript": "^2.0.10"
   },
   "dependencies": {
-    "cdp-diff": "0.0.13",
     "es6-promise": "^3.0.2",
     "lodash": "^4.0.1",
-    "rx": "^4.0.7"
+    "rxjs": "^5.0.0-rc5"
   }
 }

@@ -1,19 +1,18 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var _ = require('lodash');
 var Rx = require('rx');
-var component_1 = require('./component');
-var Store = (function (_super) {
-    __extends(Store, _super);
-    function Store(props, shouldDiffState) {
+var Store = (function () {
+    function Store(initialState) {
         var _this = this;
-        if (shouldDiffState === void 0) { shouldDiffState = true; }
-        _super.call(this, props, shouldDiffState);
+        this.rx_destructorDisposable = new Rx.CompositeDisposable();
         this.rx_observableState = new Rx.ReplaySubject(1);
+        this._state = initialState;
         setTimeout(function () { return _this.emitNewState(); }, 0);
     }
+    Object.defineProperty(Store.prototype, "state", {
+        get: function () { return this._state; },
+        enumerable: true,
+        configurable: true
+    });
     Store.prototype.listenToStore = function (store, callback) {
         var disposable = store.rx_observableState.startWith(store.state)
             .subscribeOnNext(function (newState) { return callback(newState); });
@@ -52,12 +51,33 @@ var Store = (function (_super) {
     Store.prototype.emitNewState = function () {
         this.rx_observableState.onNext(this._state);
     };
-    Store.prototype.didUpdateState = function (oldState, theDiff) {
-        _super.prototype.didUpdateState.call(this, oldState, theDiff);
+    Store.prototype.setState = function (partialState, merge) {
+        if (merge === void 0) { merge = true; }
+        var assignFn = merge ? assignAvailableProperties : undefined;
+        var newState = _.assignWith({}, this._state, partialState, assignFn);
+        this._state = newState;
         this.emitNewState();
     };
+    Store.prototype.updateState = function (closure) {
+        closure(this.state);
+        this.emitNewState();
+    };
+    Store.prototype.destroy = function () {
+        this.rx_destructorDisposable.dispose();
+    };
     return Store;
-})(component_1.default);
+})();
+function assignAvailableProperties(value, other) {
+    if (_.isArray(value)) {
+        return _.isUndefined(other) ? value : other;
+    }
+    else if (_.isObject(value) && _.isObject(other)) {
+        return _.assignInWith({}, value, other, assignAvailableProperties);
+    }
+    else {
+        return _.isUndefined(other) ? value : other;
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Store;
 //# sourceMappingURL=store.js.map
